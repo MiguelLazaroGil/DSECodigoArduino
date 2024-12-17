@@ -3,23 +3,38 @@
 Hora::Hora() {
 }
 
-void Hora::loop(int lag, bool pantallaActual, bool configurar, bool confirmar ) {
-   switch(estadoActual){
+void Hora::loop(long int seconds, bool pantallaActual, bool configurar, bool confirmar) {
+  if (configurar) {
+    tiempo = 0;
+    marcaTiempo = seconds;
+    estadoActual = hora;
+    return;
+  }
+  switch (estadoActual) {
     case base:
-        SumarHora(lag);
-    break;
- 
+      tiempo = seconds - marcaTiempo;
+      break;
+
     case hora:
-    break;
+      if ((seconds - marcaTiempo) > 1) {
+        marcaTiempo = seconds;
+        tiempo += 3600;
+      }
+      if (confirmar) {
+        estadoActual = min;
+        marcaTiempo = seconds;
+      }
+      break;
     case min:
-    break;
-
-   }
-}
-void SumarHora(int lag){
-
-  tiempo+=lag;
-  if(tiempo> MILISEGUNDOS_DIA){
-    tiempo-=MILISEGUNDOS_DIA;
+      if ((seconds - marcaTiempo) > 1) {
+        marcaTiempo = seconds;
+        tiempo += 60;
+      }
+      if (confirmar) {
+        estadoActual = base;
+        marcaTiempo = seconds-tiempo;
+       // tiempo= seconds -marcaTiempo;
+      }
+      break;
   }
 }

@@ -4,6 +4,8 @@ class Temporizador: public Pantalla{
 
   public :
    Temporizador();
-   void loop(int lag, bool pantallaActual, bool configurar,bool confirmar);
-
+   void loop(long int seconds, bool pantallaActual, bool configurar,bool confirmar);
+    long int GetTiempo() {
+    return tiempo*60; //Para que salgan segundos  minutos
+  }
 };

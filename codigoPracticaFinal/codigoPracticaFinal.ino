@@ -1,12 +1,13 @@
 //#include "Pantalla.h"
+#include <TimerOne.h> 
 #include "hora.h"
 #include "temporizador.h"
 #include "Cronometro.h"
 #define NUM_PANTALLAS 3
 enum EstadosPantallas {
-  Hora,
-  Temporizador,
-  Cronometro
+  PHora,
+  PTemporizador,
+  PCronometro
 };
 Hora hora;
 Temporizador temporizador;
@@ -16,23 +17,132 @@ Pantalla* pantallas[NUM_PANTALLAS];
 EstadosPantallas pantallaActual;
 
 //Entradas
-int botonCambioPantallas=13;
-int botonConfig=12;
-int botonConfirmar=11;
+
+int boton=A4;
 //Salidas
-//int solenoide[]
+int solenoide[16];
 
+long int seconds;
 void setup() {
+  Serial.begin(9600);
   // put your setup code here, to run once:
-
-  pantallaActual = Hora;
+  pinMode(boton, INPUT);
+  seconds=0;
+  pantallaActual = PHora;
   pantallas[0] = &hora;
   pantallas[1] = &temporizador;
   pantallas[2] = &cronometro;
+   Timer1.initialize(1000000); //Esto hace que haya una interrupcion 
+   Timer1.attachInterrupt(updateTime);
+}
+
+void updateTime(){
+  seconds++;
 }
 
 void display(long int tiempo) {
     //Aritmetica modular y tal para cada numero
+    int hora= tiempo/3600;
+    int minuto= (tiempo%3600)/60;
+    hora= hora%24;
+    int primerNum= hora/10;
+    int segunNum= hora%10;
+    int tercerNum=minuto/10;
+    int cuartoNum=minuto%10;
+    displayNum(primerNum, 0);
+    displayNum(segunNum, 1);
+    displayNum(tercerNum,2);
+    displayNum(cuartoNum, 3);
+    Serial.print("\nHora: ");
+    Serial.print(primerNum);
+    Serial.print(segunNum);
+    
+    Serial.print("\nMin: ");
+    Serial.print(tercerNum);
+    Serial.println(cuartoNum);
+  
+}
+void displayNum(int num, int pos){
+  //////////////////
+  ////PIN1///PIN2///
+  //////////////////
+  ////PIN3///PIN4///
+  //////////////////
+  int pin1=solenoide[0+pos*4];
+  int pin2=solenoide[1+pos*4];
+  int pin3=solenoide[2+pos*4];
+  int pin4=solenoide[3+pos*4];
+    switch (num){
+      case 9:
+        
+        digitalWrite(pin1, LOW);
+        digitalWrite(pin2, HIGH);
+        digitalWrite(pin3, HIGH);
+        digitalWrite(pin4, LOW);
+      break;
+      case 8:
+      
+        digitalWrite(pin1, HIGH);
+        digitalWrite(pin2, LOW);
+        digitalWrite(pin3, HIGH);
+        digitalWrite(pin4, HIGH);
+      break;
+      case 7:
+      
+        digitalWrite(pin1, HIGH);
+        digitalWrite(pin2, HIGH);
+        digitalWrite(pin3, HIGH);
+        digitalWrite(pin4, HIGH);
+      break;
+      case 6:
+      
+        digitalWrite(pin1, HIGH);
+        digitalWrite(pin2, HIGH);
+        digitalWrite(pin3, HIGH);
+        digitalWrite(pin4, LOW);
+      break;
+      case 5:
+      
+        digitalWrite(pin1, HIGH);
+        digitalWrite(pin2, LOW);
+        digitalWrite(pin3, LOW);
+        digitalWrite(pin4, HIGH);
+      break;
+      case 4:
+      
+        digitalWrite(pin1, HIGH);
+        digitalWrite(pin2, HIGH);
+        digitalWrite(pin3, LOW);
+        digitalWrite(pin4, HIGH);
+      break;
+      case 3:
+      
+        digitalWrite(pin1, HIGH);
+        digitalWrite(pin2, HIGH);
+        digitalWrite(pin3, LOW);
+        digitalWrite(pin4, LOW);
+      break;
+      case 2:
+      
+        digitalWrite(pin1, HIGH);
+        digitalWrite(pin2, LOW);
+        digitalWrite(pin3, HIGH);
+        digitalWrite(pin4, LOW);
+      break;
+      case 1:
+      
+        digitalWrite(pin1, HIGH);
+        digitalWrite(pin2, LOW);
+        digitalWrite(pin3, LOW);
+        digitalWrite(pin4, LOW);
+      break;
+      case 0:
+        digitalWrite(pin1, LOW);
+        digitalWrite(pin2, HIGH);
+        digitalWrite(pin3, HIGH);
+        digitalWrite(pin4, HIGH);
+      break;
+    }
 }
 int botonPulsado(float voltaje){
 // Pulsador 1
@@ -58,11 +168,13 @@ void SiguientePantalla() {
   int temp = pantallaActual;
   temp = (temp + 1) % NUM_PANTALLAS;
   pantallaActual = (EstadosPantallas)temp;
+  Serial.print("Estamos en la pantallaa: ");
+  Serial.println(pantallaActual);
 }
 void loop() {
   // put your main code here, to run repeatedly:
     // Leer el pin analógico
-  int valorA4 = analogRead(pinEntrada);
+  int valorA4 = analogRead(boton);
   // Convertir a voltios el valor analógico
   float voltaje = valorA4 * (5.0/1023.0);
   // Mostramos los voltios en el monitor serie
@@ -79,15 +191,15 @@ void loop() {
   }
   { 
 
-    //Dos opciones de codigo:
+     //Dos opciones de codigo:
     //Primera:
     for (int i = 0; i < NUM_PANTALLAS; i++) {
-      pantallas[i]->loop( (i == (int)pantallaActual), configurar, configurar);
+      pantallas[i]->loop(seconds, (i == (int)pantallaActual), configurar, configurar);
     }
     //Segunda:
-    hora.loop(pantallaActual==0, configurar, confirmar);
-    temporizador.loop(pantallaActual==1, configurar, confirmar);
-    cronometro.loop(pantallaActual==2, configurar, confirmar);
+    hora.loop(seconds,pantallaActual==0, configurar, confirmar);
+    temporizador.loop(seconds,pantallaActual==1, configurar, confirmar);
+    cronometro.loop(seconds,pantallaActual==2, configurar, confirmar);
     //Fin actualizar todo
   }
   {  //Display pantalla actual
@@ -95,18 +207,20 @@ void loop() {
     //Dos opciones de cogido:
       //Primera:
     switch (pantallaActual) {
-      case Hora:
+      case PHora:
         display(hora.GetTiempo());
         break;
-      case Temporizador:
+      case PTemporizador:
         display(temporizador.GetTiempo());
         break;
-      case Cronometro:
+      case PCronometro:
         display(cronometro.GetTiempo());
         break;
     }
 
       //Segunda:
       display(pantallas[pantallaActual]->GetTiempo());
+      Serial.println(seconds);
+      delay(100);
   }
 }

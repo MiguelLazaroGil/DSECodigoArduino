@@ -5,6 +5,6 @@ class Hora : public Pantalla
 
   public :
    Hora();
-   void loop(int lag, bool pantallaActual, bool configurar,bool confirmar);
+   void loop(long int seconds, bool pantallaActual, bool configurar,bool confirmar);
 
 };
