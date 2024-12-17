@@ -44,7 +44,12 @@ void display(long int tiempo) {
     //Aritmetica modular y tal para cada numero
     int hora= tiempo/3600;
     int minuto= (tiempo%3600)/60;
+    if(pantallaActual== PHora){
+      
     hora= hora%24;
+    }else{
+      hora=hora%60;
+    }
     int primerNum= hora/10;
     int segunNum= hora%10;
     int tercerNum=minuto/10;
