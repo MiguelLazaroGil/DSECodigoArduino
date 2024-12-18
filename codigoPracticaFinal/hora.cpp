@@ -4,7 +4,7 @@ Hora::Hora() {
 }
 
 void Hora::loop(long int seconds, bool pantallaActual, bool configurar, bool confirmar) {
-  if (configurar) {
+  if (configurar && pantallaActual) {
     tiempo = 0;
     marcaTiempo = seconds;
     estadoActual = hora;

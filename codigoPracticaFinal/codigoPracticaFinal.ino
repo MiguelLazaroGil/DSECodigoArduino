@@ -20,14 +20,16 @@ EstadosPantallas pantallaActual;
 
 int boton = A4;
 //Salidas
-int solenoide[16];
+int solenoide[16]= {13,12,11,10,9,8,7,6,5,4,3,2,A0,A1,A2,A3};
 
 long int seconds;
+long int ultimoSegundoPulsado;
 void setup() {
   Serial.begin(9600);
   // put your setup code here, to run once:
   pinMode(boton, INPUT);
   seconds = 0;
+  ultimoSegundoPulsado=0;
   pantallaActual = PHora;
   pantallas[0] = &hora;
   pantallas[1] = &temporizador;
@@ -58,13 +60,14 @@ void display(long int tiempo) {
   displayNum(segunNum, 1);
   displayNum(tercerNum, 2);
   displayNum(cuartoNum, 3);
-  Serial.print("\nHora: ");
+  /*Serial.print("\nHora: ");
   Serial.print(primerNum);
   Serial.print(segunNum);
 
   Serial.print("\nMin: ");
   Serial.print(tercerNum);
   Serial.println(cuartoNum);
+  */
 }
 void displayNum(int num, int pos) {
   //////////////////
@@ -149,16 +152,24 @@ void displayNum(int num, int pos) {
   }
 }
 int botonPulsado(float voltaje) {
+  if(ultimoSegundoPulsado==seconds){return -1;}
+  
   // Pulsador 1
-  if (voltaje >= 1.25 && voltaje < 2.5) {
+  if (voltaje >= 1.00 && voltaje < 2.5) {
+    ultimoSegundoPulsado=seconds;
+    Serial.print("Boton 1 pulsado");
     return 1;
   }
   // Pulsador 2
   else if (voltaje >= 2.5 && voltaje < 3.75) {
+    ultimoSegundoPulsado=seconds;
+    Serial.print("Boton 2 pulsado");
     return 2;
   }
   // Pulsador 3
   else if (voltaje >= 3.75 && voltaje <= 5) {
+    ultimoSegundoPulsado=seconds;
+    Serial.print("Boton 3 pulsado");
     return 3;
   } else {
     return -1;
@@ -181,19 +192,17 @@ void loop() {
   // Mostramos los voltios en el monitor serie
   Serial.println(voltaje);
   int numBoton = botonPulsado(voltaje);
-  bool configurar = (botonPulsado == 2);
-  bool confirmar = (botonPulsado == 1);
-  bool cambiar = (botonPulsado == 0);
+  bool configurar = (numBoton == 3);
+  bool confirmar = (numBoton == 2);
+  bool cambiar = (numBoton == 1);
 
   //cambiar de pantallas
   if (cambiar) {
     SiguientePantalla();
   }
 
-
-
   for (int i = 0; i < NUM_PANTALLAS; i++) {
-    pantallas[i]->loop(seconds, (i == (int)pantallaActual), configurar, configurar);
+    pantallas[i]->loop(seconds, (i == (int)pantallaActual), configurar, confirmar);
   }
 
 
@@ -201,5 +210,5 @@ void loop() {
   //Segunda:
   display(pantallas[pantallaActual]->GetTiempo());
   Serial.println(seconds);
-  delay(100);
+  delay(50);
 }

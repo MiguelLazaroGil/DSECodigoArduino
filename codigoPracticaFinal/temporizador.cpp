@@ -5,7 +5,7 @@ Temporizador::Temporizador() {
 }
 
 void Temporizador::loop(long int seconds, bool pantallaActual, bool configurar, bool confirmar ) {
-   if (configurar) {
+   if (configurar && pantallaActual) {
     tiempo = 0;
     marcaTiempo = seconds;
     estadoActual = min;
@@ -13,7 +13,7 @@ void Temporizador::loop(long int seconds, bool pantallaActual, bool configurar, 
   }
   switch (estadoActual) {
     case base:
-      tiempo = seconds - marcaTiempo;
+      tiempo =marcaTiempo - seconds;
       break;
 
 
@@ -23,18 +23,19 @@ void Temporizador::loop(long int seconds, bool pantallaActual, bool configurar, 
         marcaTiempo = seconds;
         tiempo += 60;
       }
-      if (confirmar) {
+      if (confirmar && pantallaActual) {
         estadoActual = sec;
         marcaTiempo = seconds;
       }
+      break;
     case sec:
        if ((seconds - marcaTiempo) > 1) {
         marcaTiempo = seconds;
         tiempo += 1;
       }
-      if (confirmar) {
+      if (confirmar && pantallaActual) {
         estadoActual = base;
-        marcaTiempo = seconds-tiempo;
+        marcaTiempo = seconds+tiempo;
        // tiempo= seconds -marcaTiempo;
       }
       break;
