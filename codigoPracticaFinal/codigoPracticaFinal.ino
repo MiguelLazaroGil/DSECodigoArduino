@@ -190,7 +190,7 @@ void loop() {
   // Convertir a voltios el valor analógico
   float voltaje = valorA4 * (5.0 / 1023.0);
   // Mostramos los voltios en el monitor serie
-  Serial.println(voltaje);
+  //Serial.println(voltaje);
   int numBoton = botonPulsado(voltaje);
   bool configurar = (numBoton == 3);
   bool confirmar = (numBoton == 2);
@@ -209,6 +209,6 @@ void loop() {
   //Display pantalla actual
   //Segunda:
   display(pantallas[pantallaActual]->GetTiempo());
-  Serial.println(seconds);
+  //Serial.println(seconds);
   delay(50);
 }
