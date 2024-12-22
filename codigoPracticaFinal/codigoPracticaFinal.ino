@@ -17,7 +17,6 @@ Pantalla* pantallas[NUM_PANTALLAS];
 EstadosPantallas pantallaActual;
 
 //Entradas
-
 int boton = A4;
 //Salidas
 int solenoide[16]= {13,12,11,10,9,8,7,6,5,4,3,2,A0,A1,A2,A3};
@@ -34,7 +33,8 @@ void setup() {
   pantallas[0] = &hora;
   pantallas[1] = &temporizador;
   pantallas[2] = &cronometro;
-  Timer1.initialize(1000000);  //Esto hace que haya una interrupcion
+  //Esto hace que haya una interrupcion
+  Timer1.initialize(1000000);  
   Timer1.attachInterrupt(updateTime);
 }
 
@@ -47,7 +47,6 @@ void display(long int tiempo) {
   int hora = tiempo / 3600;
   int minuto = (tiempo % 3600) / 60;
   if (pantallaActual == PHora) {
-
     hora = hora % 24;
   } else {
     hora = hora % 60;
@@ -60,14 +59,15 @@ void display(long int tiempo) {
   displayNum(segunNum, 1);
   displayNum(tercerNum, 2);
   displayNum(cuartoNum, 3);
-  /*Serial.print("\nHora: ");
+
+  Serial.print("\nHora: ");
   Serial.print(primerNum);
   Serial.print(segunNum);
 
   Serial.print("\nMin: ");
   Serial.print(tercerNum);
   Serial.println(cuartoNum);
-  */
+  
 }
 void displayNum(int num, int pos) {
   //////////////////
@@ -153,7 +153,6 @@ void displayNum(int num, int pos) {
 }
 int botonPulsado(float voltaje) {
   if(ultimoSegundoPulsado==seconds){return -1;}
-  
   // Pulsador 1
   if (voltaje >= 1.00 && voltaje < 2.5) {
     ultimoSegundoPulsado=seconds;
@@ -171,9 +170,8 @@ int botonPulsado(float voltaje) {
     ultimoSegundoPulsado=seconds;
     Serial.print("Boton 3 pulsado");
     return 3;
-  } else {
+  } 
     return -1;
-  }
 }
 
 void SiguientePantalla() {
@@ -190,7 +188,7 @@ void loop() {
   // Convertir a voltios el valor analógico
   float voltaje = valorA4 * (5.0 / 1023.0);
   // Mostramos los voltios en el monitor serie
-  //Serial.println(voltaje);
+  Serial.println(voltaje);
   int numBoton = botonPulsado(voltaje);
   bool configurar = (numBoton == 3);
   bool confirmar = (numBoton == 2);
@@ -207,8 +205,7 @@ void loop() {
 
 
   //Display pantalla actual
-  //Segunda:
   display(pantallas[pantallaActual]->GetTiempo());
-  //Serial.println(seconds);
+  Serial.println(seconds);
   delay(50);
 }

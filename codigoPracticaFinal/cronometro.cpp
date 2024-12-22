@@ -18,7 +18,7 @@ void Cronometro::loop(long int seconds, bool pantallaActual, bool configurar, bo
     marcaTiempo = seconds;
     estadoActual = base;
   }
-  if (estadoActual != parado) {
+  if (estadoActual == base) {
 
     tiempo = seconds - marcaTiempo;
   }
